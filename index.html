@@ -1,11 +1,836 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Basic Web App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý nhân viên quán cafe</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --primary: #6c5ce7;
+            --primary-strong: #5541d8;
+            --accent: #00b894;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --surface: #ffffff;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at 20% 20%, rgba(108, 92, 231, 0.08), transparent 25%),
+                        radial-gradient(circle at 80% 0%, rgba(0, 184, 148, 0.12), transparent 20%),
+                        var(--bg);
+            color: var(--text);
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 18px 64px;
+        }
+
+        header.hero {
+            background: linear-gradient(135deg, #6c5ce7, #4b3fc4);
+            border-radius: 20px;
+            padding: 28px 24px;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(108, 92, 231, 0.28);
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 20px;
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .hero p {
+            margin: 0;
+            color: #e9e6ff;
+            line-height: 1.5;
+        }
+
+        .hero .tags {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .tag {
+            padding: 6px 10px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .stats {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat .label {
+            color: #cfd5ff;
+            font-size: 13px;
+        }
+
+        .stat .value {
+            font-size: 26px;
+            font-weight: 800;
+            margin: 6px 0 2px;
+        }
+
+        .stat .subtext {
+            color: #b1b7ff;
+            font-size: 13px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 18px;
+            margin-top: 22px;
+            grid-template-columns: 1.4fr 1fr;
+        }
+
+        .panel {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+        }
+
+        .panel h2 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--text);
+        }
+
+        .panel p.subtitle {
+            margin: 6px 0 14px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0 16px;
+        }
+
+        .control {
+            position: relative;
+            flex: 1 1 160px;
+        }
+
+        input, select, button, textarea {
+            font: inherit;
+        }
+
+        .input, .select {
+            width: 100%;
+            padding: 10px 12px 10px 38px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            transition: border 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .select {
+            padding: 10px 12px 10px 12px;
+        }
+
+        .control .icon {
+            position: absolute;
+            left: 12px;
+            top: 11px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .input:focus, .select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.16);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-wrapper {
+            overflow: auto;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--muted);
+            font-weight: 700;
+            background: #f8f9fb;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tr:hover td {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .badge.on {
+            background: rgba(0, 184, 148, 0.12);
+            color: #0f9d80;
+        }
+
+        .badge.off {
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--danger);
+        }
+
+        .shift {
+            background: rgba(108, 92, 231, 0.12);
+            color: #4b3fc4;
+        }
+
+        .role {
+            background: rgba(59, 130, 246, 0.12);
+            color: #2563eb;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.26);
+        }
+
+        .btn.secondary {
+            background: #eef2ff;
+            color: #4b3fc4;
+            border: 1px solid #d6d9ff;
+        }
+
+        .btn.danger {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecdd3;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        form .row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            resize: vertical;
+            min-height: 80px;
+            background: #fff;
+        }
+
+        .switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .switch input {
+            appearance: none;
+            width: 44px;
+            height: 24px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            position: relative;
+            transition: background 0.2s ease;
+        }
+
+        .switch input::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .switch input:checked {
+            background: #34d399;
+        }
+
+        .switch input:checked::after {
+            transform: translateX(18px);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 14px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 24px 12px;
+            color: var(--muted);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #111827;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 10;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: #f3f4f6;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 10px;
+        }
+
+        .info-item {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+
+        .info-item strong {
+            color: var(--text);
+        }
+
+        @media (max-width: 900px) {
+            header.hero {
+                grid-template-columns: 1fr;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello, GitHub Pages!</h1>
-    <p>This is a basic web app.</p>
+    <div class="page">
+        <header class="hero">
+            <div>
+                <h1>Quản lý nhân viên quán cafe</h1>
+                <p>Lưu thông tin, sắp xếp ca làm và kiểm soát trạng thái làm việc theo thời gian thực.</p>
+                <div class="tags">
+                    <span class="tag">Thêm / chỉnh sửa nhanh</span>
+                    <span class="tag">Lưu cục bộ</span>
+                    <span class="tag">Theo dõi ca làm</span>
+                </div>
+            </div>
+            <div class="stats" id="statCards">
+                <div class="stat">
+                    <div class="label">Tổng nhân viên</div>
+                    <div class="value" id="totalCount">0</div>
+                    <div class="subtext" id="totalSub">Đội hình hiện tại</div>
+                </div>
+                <div class="stat">
+                    <div class="label">Đang làm</div>
+                    <div class="value" id="activeCount">0</div>
+                    <div class="subtext">Nhân viên đang on-shift</div>
+                </div>
+                <div class="stat">
+                    <div class="label">Ca bận rộn</div>
+                    <div class="value" id="busyShift">-</div>
+                    <div class="subtext">Ca có nhiều nhân sự nhất</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid">
+            <section class="panel">
+                <div class="section-title">
+                    <div>
+                        <h2>Danh sách nhân viên</h2>
+                        <p class="subtitle">Tìm kiếm, lọc ca làm và quản lý trạng thái làm việc.</p>
+                    </div>
+                    <div class="pill" id="sortIndicator">Sắp xếp: mặc định</div>
+                </div>
+
+                <div class="controls">
+                    <div class="control">
+                        <span class="icon">🔍</span>
+                        <input class="input" id="searchInput" placeholder="Tìm theo tên hoặc vị trí..." autocomplete="off">
+                    </div>
+                    <div class="control">
+                        <select class="select" id="shiftFilter">
+                            <option value="">Tất cả ca</option>
+                            <option value="Ca sáng">Ca sáng</option>
+                            <option value="Ca chiều">Ca chiều</option>
+                            <option value="Ca tối">Ca tối</option>
+                        </select>
+                    </div>
+                    <div class="control">
+                        <select class="select" id="statusFilter">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="on">Đang làm</option>
+                            <option value="off">Đang nghỉ</option>
+                        </select>
+                    </div>
+                    <button class="btn secondary" id="sortJoin">Sắp xếp theo ngày vào làm</button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tên</th>
+                                <th>Vị trí</th>
+                                <th>Ca</th>
+                                <th>Ngày vào</th>
+                                <th>Trạng thái</th>
+                                <th>Liên hệ</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeTable"></tbody>
+                    </table>
+                </div>
+                <div class="empty" id="emptyState" style="display: none;">Chưa có nhân viên nào.</div>
+            </section>
+
+            <section class="panel">
+                <h2>Thêm / chỉnh sửa nhân viên</h2>
+                <p class="subtitle">Điền thông tin để lưu lại. Dữ liệu được lưu cục bộ trên trình duyệt.</p>
+                <form id="employeeForm">
+                    <div class="row">
+                        <div>
+                            <label for="name">Họ và tên</label>
+                            <input required class="input" id="name" placeholder="VD: Trần Minh Khôi">
+                        </div>
+                        <div>
+                            <label for="role">Vị trí</label>
+                            <input required class="input" id="role" placeholder="Pha chế, phục vụ...">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label for="shift">Ca làm</label>
+                            <select required class="select" id="shift">
+                                <option value="">Chọn ca</option>
+                                <option value="Ca sáng">Ca sáng</option>
+                                <option value="Ca chiều">Ca chiều</option>
+                                <option value="Ca tối">Ca tối</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="phone">Số điện thoại</label>
+                            <input class="input" id="phone" placeholder="09xx...">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label for="startDate">Ngày vào làm</label>
+                            <input type="date" class="input" id="startDate">
+                        </div>
+                        <div>
+                            <label class="switch">
+                                <input type="checkbox" id="onDuty" checked>
+                                <span>Đang làm</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="notes">Ghi chú</label>
+                        <textarea id="notes" placeholder="Ví dụ: ca tối ưu tiên order, cần training pha chế"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn secondary" id="resetForm">Làm mới</button>
+                        <button type="submit" class="btn primary" id="submitBtn">Lưu nhân viên</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <section class="panel" style="margin-top: 18px;">
+            <div class="section-title">
+                <h2>Ghi chú vận hành nhanh</h2>
+                <span class="pill" id="lastUpdated">Cập nhật gần nhất: -</span>
+            </div>
+            <p class="subtitle">Cập nhật nhanh những lưu ý giúp ca làm trơn tru hơn.</p>
+            <ul class="info-list" id="noteList"></ul>
+        </section>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const storageKey = "cafeEmployees";
+        let employees = [];
+        let sortAscending = false;
+        let editingId = null;
+
+        const defaultEmployees = [
+            { id: 1, name: "Nguyễn Thảo My", role: "Pha chế", shift: "Ca sáng", phone: "0912 223 441", startDate: "2024-06-12", onDuty: true, notes: "Rành menu đá xay" },
+            { id: 2, name: "Trần Minh Khôi", role: "Phục vụ", shift: "Ca chiều", phone: "0933 112 908", startDate: "2024-07-04", onDuty: false, notes: "Ưu tiên khu vực ngoài trời" },
+            { id: 3, name: "Đỗ Quỳnh Anh", role: "Thu ngân", shift: "Ca tối", phone: "0905 668 120", startDate: "2024-05-28", onDuty: true, notes: "Ca tối đóng két" }
+        ];
+
+        const elements = {
+            tableBody: document.getElementById("employeeTable"),
+            emptyState: document.getElementById("emptyState"),
+            searchInput: document.getElementById("searchInput"),
+            shiftFilter: document.getElementById("shiftFilter"),
+            statusFilter: document.getElementById("statusFilter"),
+            sortJoin: document.getElementById("sortJoin"),
+            sortIndicator: document.getElementById("sortIndicator"),
+            form: document.getElementById("employeeForm"),
+            name: document.getElementById("name"),
+            role: document.getElementById("role"),
+            shift: document.getElementById("shift"),
+            phone: document.getElementById("phone"),
+            startDate: document.getElementById("startDate"),
+            onDuty: document.getElementById("onDuty"),
+            notes: document.getElementById("notes"),
+            resetForm: document.getElementById("resetForm"),
+            submitBtn: document.getElementById("submitBtn"),
+            toast: document.getElementById("toast"),
+            totalCount: document.getElementById("totalCount"),
+            totalSub: document.getElementById("totalSub"),
+            activeCount: document.getElementById("activeCount"),
+            busyShift: document.getElementById("busyShift"),
+            lastUpdated: document.getElementById("lastUpdated"),
+            noteList: document.getElementById("noteList")
+        };
+
+        function loadEmployees() {
+            const saved = localStorage.getItem(storageKey);
+            if (saved) {
+                try {
+                    employees = JSON.parse(saved);
+                } catch (err) {
+                    employees = [...defaultEmployees];
+                }
+            } else {
+                employees = [...defaultEmployees];
+            }
+        }
+
+        function saveEmployees() {
+            localStorage.setItem(storageKey, JSON.stringify(employees));
+        }
+
+        function showToast(message) {
+            elements.toast.textContent = message;
+            elements.toast.classList.add("show");
+            setTimeout(() => elements.toast.classList.remove("show"), 2000);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return "-";
+            const date = new Date(dateStr + "T00:00:00");
+            if (Number.isNaN(date.getTime())) return "-";
+            return date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+        }
+
+        function renderStats() {
+            const total = employees.length;
+            const active = employees.filter(e => e.onDuty).length;
+            const byShift = employees.reduce((acc, cur) => {
+                acc[cur.shift] = (acc[cur.shift] || 0) + 1;
+                return acc;
+            }, {});
+            const busyShift = Object.entries(byShift).sort((a, b) => b[1] - a[1])[0]?.[0] || "-";
+
+            elements.totalCount.textContent = total;
+            elements.activeCount.textContent = active;
+            elements.totalSub.textContent = total ? `${active} đang trong ca` : "Chưa có nhân viên";
+            elements.busyShift.textContent = busyShift;
+        }
+
+        function renderNotes() {
+            const notes = employees
+                .filter(e => e.notes?.trim())
+                .slice(0, 4)
+                .map(e => ({ name: e.name, notes: e.notes, shift: e.shift }));
+            elements.noteList.innerHTML = notes
+                .map(note => `
+                    <li class="info-item">
+                        <div>
+                            <strong>${note.name}</strong>
+                            <div class="subtitle">${note.shift}</div>
+                        </div>
+                        <span>${note.notes}</span>
+                    </li>
+                `)
+                .join("");
+            if (!notes.length) {
+                elements.noteList.innerHTML = '<li class="info-item"><span>Chưa có ghi chú nào.</span></li>';
+            }
+        }
+
+        function applyFilters(list) {
+            const term = elements.searchInput.value.toLowerCase();
+            const shift = elements.shiftFilter.value;
+            const status = elements.statusFilter.value;
+
+            return list.filter(item => {
+                const matchesTerm = item.name.toLowerCase().includes(term) || item.role.toLowerCase().includes(term);
+                const matchesShift = shift ? item.shift === shift : true;
+                const matchesStatus = status === "on" ? item.onDuty : status === "off" ? !item.onDuty : true;
+                return matchesTerm && matchesShift && matchesStatus;
+            });
+        }
+
+        function renderTable() {
+            const filtered = applyFilters([...employees]);
+            if (sortAscending) {
+                filtered.sort((a, b) => new Date(a.startDate || 0) - new Date(b.startDate || 0));
+            }
+
+            elements.tableBody.innerHTML = filtered.map(employee => `
+                <tr>
+                    <td>
+                        <div><strong>${employee.name}</strong></div>
+                        <div class="subtitle">${employee.notes || ""}</div>
+                    </td>
+                    <td><span class="badge role">${employee.role}</span></td>
+                    <td><span class="badge shift">${employee.shift}</span></td>
+                    <td>${formatDate(employee.startDate)}</td>
+                    <td>
+                        <label class="switch" aria-label="Toggle status">
+                            <input type="checkbox" ${employee.onDuty ? "checked" : ""} data-id="${employee.id}" class="toggle-duty">
+                            <span class="badge ${employee.onDuty ? "on" : "off"}">${employee.onDuty ? "Đang làm" : "Đang nghỉ"}</span>
+                        </label>
+                    </td>
+                    <td>${employee.phone || "-"}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn secondary" data-edit="${employee.id}">Sửa</button>
+                            <button class="btn danger" data-delete="${employee.id}">Xóa</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
+
+            elements.emptyState.style.display = filtered.length ? "none" : "block";
+            renderStats();
+            renderNotes();
+            updateLastUpdated();
+        }
+
+        function updateLastUpdated() {
+            if (!employees.length) {
+                elements.lastUpdated.textContent = "Cập nhật gần nhất: -";
+                return;
+            }
+            const latest = employees.reduce((latest, current) => {
+                const currentDate = new Date(current.startDate || 0).getTime();
+                return currentDate > latest ? currentDate : latest;
+            }, 0);
+            const text = latest ? new Date(latest).toLocaleDateString("vi-VN") : "-";
+            elements.lastUpdated.textContent = `Cập nhật gần nhất: ${text}`;
+        }
+
+        function resetForm() {
+            editingId = null;
+            elements.form.reset();
+            elements.onDuty.checked = true;
+            elements.submitBtn.textContent = "Lưu nhân viên";
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            const newEmployee = {
+                id: editingId ?? Date.now(),
+                name: elements.name.value.trim(),
+                role: elements.role.value.trim(),
+                shift: elements.shift.value,
+                phone: elements.phone.value.trim(),
+                startDate: elements.startDate.value,
+                onDuty: elements.onDuty.checked,
+                notes: elements.notes.value.trim()
+            };
+
+            if (!newEmployee.name || !newEmployee.role || !newEmployee.shift) {
+                showToast("Vui lòng điền đầy đủ tên, vị trí và ca làm.");
+                return;
+            }
+
+            const existingIndex = employees.findIndex(emp => emp.id === newEmployee.id);
+            if (existingIndex >= 0) {
+                employees[existingIndex] = newEmployee;
+                showToast("Đã cập nhật nhân viên.");
+            } else {
+                employees.unshift(newEmployee);
+                showToast("Đã thêm nhân viên mới.");
+            }
+
+            saveEmployees();
+            renderTable();
+            resetForm();
+        }
+
+        function handleTableClick(event) {
+            const editId = event.target.getAttribute("data-edit");
+            const deleteId = event.target.getAttribute("data-delete");
+            const toggleId = event.target.getAttribute("data-id");
+
+            if (editId) {
+                const emp = employees.find(e => e.id === Number(editId));
+                if (emp) {
+                    editingId = emp.id;
+                    elements.name.value = emp.name;
+                    elements.role.value = emp.role;
+                    elements.shift.value = emp.shift;
+                    elements.phone.value = emp.phone;
+                    elements.startDate.value = emp.startDate;
+                    elements.onDuty.checked = emp.onDuty;
+                    elements.notes.value = emp.notes || "";
+                    elements.submitBtn.textContent = "Cập nhật";
+                    showToast("Đang chỉnh sửa hồ sơ.");
+                }
+            }
+
+            if (deleteId) {
+                const id = Number(deleteId);
+                employees = employees.filter(emp => emp.id !== id);
+                saveEmployees();
+                renderTable();
+                showToast("Đã xóa nhân viên.");
+            }
+
+            if (toggleId && event.target.classList.contains("toggle-duty")) {
+                const id = Number(toggleId);
+                const emp = employees.find(e => e.id === id);
+                if (emp) {
+                    emp.onDuty = event.target.checked;
+                    saveEmployees();
+                    renderTable();
+                }
+            }
+        }
+
+        function attachEvents() {
+            elements.searchInput.addEventListener("input", renderTable);
+            elements.shiftFilter.addEventListener("change", renderTable);
+            elements.statusFilter.addEventListener("change", renderTable);
+            elements.sortJoin.addEventListener("click", () => {
+                sortAscending = !sortAscending;
+                elements.sortIndicator.textContent = sortAscending ? "Sắp xếp: ngày vào sớm nhất" : "Sắp xếp: mặc định";
+                renderTable();
+            });
+            elements.form.addEventListener("submit", handleSubmit);
+            elements.resetForm.addEventListener("click", resetForm);
+            elements.tableBody.addEventListener("click", handleTableClick);
+        }
+
+        function init() {
+            loadEmployees();
+            attachEvents();
+            renderTable();
+        }
+
+        init();
+    </script>
 </body>
 </html>
