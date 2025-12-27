@@ -860,7 +860,6 @@
         function handleTableClick(event) {
             const editId = event.target.getAttribute("data-edit");
             const deleteId = event.target.getAttribute("data-delete");
-            const toggleId = event.target.getAttribute("data-id");
 
             if (editId) {
                 const emp = employees.find(e => e.id === Number(editId));
@@ -885,15 +884,17 @@
                 renderTable();
                 showToast("Đã xóa nhân viên.");
             }
+        }
 
-            if (toggleId && event.target.classList.contains("toggle-duty")) {
-                const id = Number(toggleId);
-                const emp = employees.find(e => e.id === id);
-                if (emp) {
-                    emp.onDuty = event.target.checked;
-                    saveEmployees();
-                    renderTable();
-                }
+        function handleStatusToggle(event) {
+            const toggle = event.target.closest(".toggle-duty");
+            if (!toggle) return;
+            const id = Number(toggle.getAttribute("data-id"));
+            const emp = employees.find(e => e.id === id);
+            if (emp) {
+                emp.onDuty = toggle.checked;
+                saveEmployees();
+                renderTable();
             }
         }
 
@@ -909,6 +910,7 @@
             elements.form.addEventListener("submit", handleSubmit);
             elements.resetForm.addEventListener("click", resetForm);
             elements.tableBody.addEventListener("click", handleTableClick);
+            elements.tableBody.addEventListener("change", handleStatusToggle);
         }
 
         function init() {
